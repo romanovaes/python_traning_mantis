@@ -7,20 +7,20 @@ class SessionHelper:
 
     def logout(self):
         wd = self.app.wd
-        wd.find_element_by_link_text("Logout").click()
-        wd.find_element_by_name("user")
+        wd.find_element_by_xpath("//i[2]").click()
+        wd.find_element_by_link_text("Выход").click()
 
     def login(self,user_name, password):
         wd = self.app.wd
         self.app.open_home_page()
-        wd.find_element_by_name("user").click()
-        wd.find_element_by_name("user").clear()
-        wd.find_element_by_name("user").send_keys("%s" % user_name)
-        wd.find_element_by_id("LoginForm").click()
-        wd.find_element_by_name("pass").click()
-        wd.find_element_by_name("pass").clear()
-        wd.find_element_by_name("pass").send_keys("%s" % password)
-        wd.find_element_by_xpath("//input[@value='Login']").click()
+        wd.find_element_by_name("username").click()
+        wd.find_element_by_name("username").clear()
+        wd.find_element_by_name("username").send_keys("%s" % user_name)
+        wd.find_element_by_xpath("//input[@value='Войти']").click()
+        wd.find_element_by_name("password").click()
+        wd.find_element_by_name("password").clear()
+        wd.find_element_by_name("password").send_keys("%s" % password)
+        wd.find_element_by_xpath("//input[@value='Войти']").click()
 
     def is_logged_in_as(self,user_name):
         wd = self.app.wd
@@ -28,7 +28,7 @@ class SessionHelper:
 
     def get_logged_user(self):
         wd = self.app.wd
-        return wd.find_element_by_xpath("/html/body/div/div[1]/form/b").text[1:-1]
+        return wd.find_element_by_css_selector("span.user-info").text
 
     def ensue_logout(self):
         wd = self.app.wd
@@ -37,7 +37,7 @@ class SessionHelper:
 
     def is_logged_in(self):
         wd = self.app.wd
-        return len(wd.find_elements_by_link_text("Logout")) > 0
+        return len(wd.find_elements_by_link_text("Выход")) > 0
 
     def ensue_login(self, user_name, password):
         wd = self.app.wd

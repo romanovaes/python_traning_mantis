@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 import pytest
-import  os.path
-import  importlib
-import jsonpickle
+import os.path
 from fixture.application import Application
-from fixture.db import DBFixture
-from fixture.orm import ORMFixture
+
 
 fixture=None
 target=None
@@ -24,29 +21,11 @@ def app(request):
     global fixture
     browser=request.config.getoption("--browser")
     web_config=load_config(request.config.getoption("--target"))["web"]
+    web_config2 = load_config(request.config.getoption("--target"))["webadmin"]
     if fixture is None or not fixture.is_valid():
         fixture=Application(browser=browser, baseUrl=web_config["baseUrl"])
-    fixture.session.ensue_login(user_name=web_config["username"], password=web_config["password"])
+    fixture.session.ensue_login(user_name=web_config2["username"], password=web_config2["password"])
     return fixture
-
-@pytest.fixture(scope="session")
-def db(request):
-    db_config = load_config(request.config.getoption("--target"))['db']
-    dbfixture = DBFixture(host=db_config['host'], name=db_config['name'], user=db_config['user'], password=db_config['password'])
-    def fin():
-        dbfixture.destroy()
-    request.addfinalizer(fin)
-    return dbfixture
-
-@pytest.fixture(scope="session")
-def orm(request):
-    db_config = load_config(request.config.getoption("--target"))['db']
-    dbfixture = ORMFixture(host=db_config['host'], name=db_config['name'], user=db_config['user'], password=db_config['password'])
-    return dbfixture
-
-@pytest.fixture
-def check_ui(request):
-    return request.config.getoption("--check_ui")
 
 @pytest.fixture(scope="session", autouse=True)
 def stop(request):
@@ -60,23 +39,4 @@ def stop(request):
 def pytest_addoption(parser):
     parser.addoption("--browser", action="store", default="firefox")
     parser.addoption("--target", action="store", default="target.json")
-    parser.addoption("--check_ui", action="store_true")
 
-
-def pytest_generate_tests(metafunc):
-    for fixture in metafunc.fixturenames:
-       if fixture.startswith("data_"):
-           testdata=load_from_module(fixture[5:])
-           metafunc.parametrize(fixture, testdata, ids=[str(x) for x in testdata])
-       elif fixture.startswith("json_"):
-           testdata=load_from_json(fixture[5:])
-           metafunc.parametrize(fixture, testdata, ids=[str(x) for x in testdata])
-
-
-def load_from_module(module):
-    return importlib.import_module("data.%s" % module).testdata
-
-
-def load_from_json(file):
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data\%s.json" % file)) as f:
-        return jsonpickle.decode(f.read())
