@@ -37,7 +37,7 @@ class SessionHelper:
 
     def is_logged_in(self):
         wd = self.app.wd
-        return len(wd.find_elements_by_link_text("Выход")) > 0
+        return len(wd.find_elements_by_css_selector("span.user-info")) > 0
 
     def ensue_login(self, user_name, password):
         wd = self.app.wd

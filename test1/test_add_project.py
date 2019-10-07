@@ -1,8 +1,8 @@
 from model.project import Project
 
 
-def test_add_project(app, json_project):
-    project = json_project
+def test_add_project(app):
+    project = Project(name="ntc45n", description="ntcn45")
     old_project = app.project.get_project_list()
     app.project.add_project(project)
     new_project = app.project.get_project_list()
