@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
+
+import ftputil
 import pytest
 import os.path
 from fixture.application import Application
+
 
 
 fixture=None
@@ -17,14 +20,12 @@ def load_config(file):
     return target
 
 @pytest.fixture(scope="session")
-def app(request):
+def app(request, config):
     global fixture
     browser=request.config.getoption("--browser")
-    web_config=load_config(request.config.getoption("--target"))["web"]
-    web_config2 = load_config(request.config.getoption("--target"))["webadmin"]
     if fixture is None or not fixture.is_valid():
-        fixture=Application(browser=browser, baseUrl=web_config["baseUrl"])
-    fixture.session.ensue_login(user_name=web_config2["username"], password=web_config2["password"])
+        fixture=Application(browser=browser, baseUrl=config["web"]["baseUrl"])
+    fixture.session.ensue_login(user_name=config["webadmin"]["username"], password=config["webadmin"]["password"])
     return fixture
 
 @pytest.fixture(scope="session", autouse=True)
@@ -34,6 +35,34 @@ def stop(request):
         fixture.destroy()
     request.addfinalizer(fin)
     return fixture
+
+
+@pytest.fixture(scope="session")
+def config(request):
+    return load_config(request.config.getoption("--target"))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_server(request, config):
+    install_server_configuration(config["ftp"]['host'], config["ftp"]['username'], config["ftp"]['password'])
+    def fin():
+        restore_server_configuration(config['ftp']['host'], config['ftp']['username'], config['ftp']['password'])
+    request.addfinalizer(fin)
+
+def install_server_configuration(host, username, password):
+    with ftputil.FTPHost(host, username, password) as remote:
+        if remote.path.isfile("config_defaults_inc.php.bak"):
+            remote.remove("config_defaults_inc.php.bak")
+        if remote.path.isfile("config_defaults_inc.php"):
+            remote.rename("config_defaults_inc.php", "config_defaults_inc.php.bak")
+        remote.upload(os.path.join(os.path.dirname(__file__), "resources/config_defaults_inc.php"), "config_defaults_inc.php")
+
+def restore_server_configuration(host, username, password):
+    with ftputil.FTPHost(host, username, password) as remote:
+        if remote.path.isfile("config_defaults_inc.php.bak"):
+            if remote.path.isfile("config_defaults_inc.php"):
+                remote.remove("config_defaults_inc.php")
+            remote.rename("config_defaults_inc.php.bak", "config_defaults_inc.php")
 
 
 def pytest_addoption(parser):
