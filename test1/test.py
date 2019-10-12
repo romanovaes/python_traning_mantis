@@ -1,19 +1,17 @@
-import quopri
-
-import base64
-import re
+from model.project import Project
+from suds.client import Client
+from suds import WebFault
 
 
 def test():
-  ms= "ntcn\n\nhttp://localhost/mantisbt-2.22.1/verify.php?id=3D8&confirm_hash=3DOWLkLOudi\n=0OIZgbw04IXbjObToAmZ56MVzxL-ikrH-ifpJTv81L_fkzUAY68GcS98b89B9Ci20BhEolxJHT8\n\nkdjfgk"
-  b2=ms[ms.find("http://localhost"):]
- #b2 = re.search("http://localhost/\w\W*", ms).group(0)
-  b4 = b2
-  b3 = b2.split('\n\n')[0]
-  b5=quopri.decodestring(b3)
-  b6 = b5.decode('utf-8')
-  b7=b6
-  return b5
+    client = Client("http://localhost/mantisbt-2.22.1/api/soap/mantisconnect.php?wsdl")
+    try:
+        list1 = client.service.mc_projects_get_user_accessible("administrator", "test")
+        #b=list1.split("{")
+        pr1=list1[0]
+        print(pr1)
+
+    except WebFault:
+        return False
 
 
-  print(ms)
