@@ -7,12 +7,12 @@ class ProjectHelper:
     def add_project(self, project):
         wd = self.app.wd
         self.open_project_page()
-        wd.find_element_by_xpath("//button[contains(text(),'Создать новый проект')]").click()
+        wd.find_element_by_xpath("//button[contains(text(),'Create New Project')]").click()
         wd.find_element_by_name('name').click()
         wd.find_element_by_name('name').send_keys(project.name)
         wd.find_element_by_name('description').click()
         wd.find_element_by_name('description').send_keys(project.description)
-        wd.find_element_by_xpath("//input[@value='Добавить проект']").click()
+        wd.find_element_by_xpath("//input[@value='Add Project']").click()
 
 
 
@@ -31,12 +31,12 @@ class ProjectHelper:
         wd = self.app.wd
         if not wd.current_url.endswith("/manage_proj_page.php"):
             wd.find_element_by_css_selector("i.menu-icon.fa.fa-gears").click()
-            wd.find_element_by_xpath("//a[contains(text(),'Управление проектами')]").click()
+            wd.find_element_by_xpath("//a[contains(text(),'Manage Projects')]").click()
 
     def delete_project(self, id):
         wd = self.app.wd
         self.open_project_page()
         wd.find_element_by_xpath("//a[contains(@href, 'manage_proj_edit_page.php?project_id=%s')]" % str(id)).click()
-        wd.find_element_by_xpath("//input[@value='Удалить проект']").click()
-        wd.find_element_by_xpath("//input[@value='Удалить проект']").click()
+        wd.find_element_by_xpath("//input[@value='Delete Project']").click()
+        wd.find_element_by_xpath("//input[@value='Delete Project']").click()
         self.open_project_page()

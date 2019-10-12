@@ -20,7 +20,7 @@ class MailHelper:
                 for n in range(num):
                     msglines = pop.retr(n+1)[1]
                     #msgtext=map(quopri.decodestring, msglines)
-                    msgtext= "\n".join(map(lambda x: quopri.decodestring(x.decode('utf-8')), msglines))
+                    msgtext= "\n".join(map(lambda x: x.decode('utf-8'), msglines))
                     msg= email.message_from_string(msgtext)
                     if msg.get("Subject")==subject:
                         pop.dele(n+1)
